@@ -1,0 +1,112 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+// Structure for BST Node
+struct Node {
+    float distance;
+    char name[20];
+    struct Node* left;
+    struct Node* right;
+};
+
+// Create new node for BST
+struct Node* createNode(float distance, char name[]) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->distance = distance;
+    strcpy(newNode->name, name);
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// Insert node into BST
+struct Node* insert(struct Node* root, float distance, char name[]) {
+    if (root == NULL) {
+        return createNode(distance, name);
+    }
+
+    if (distance < root->distance) {
+        root->left = insert(root->left, distance, name);
+    } else {
+        root->right = insert(root->right, distance, name);
+    }
+
+    return root;
+}
+
+// Perform Depth-First Search (DFS)
+void DFS(struct Node* root) {
+    if (root != NULL) {
+        printf("%s\n", root->name);
+        DFS(root->left);
+        DFS(root->right);
+    }
+}
+
+// Perform Breadth-First Search (BFS)
+void BFS(struct Node* root) {
+    if (root == NULL) return;
+
+    struct Node* queue[100];
+    int front = 0, rear = 0;
+    queue[rear++] = root;
+
+    while (front < rear) {
+        struct Node* current = queue[front++];
+        printf("%s\n", current->name);
+        
+        if (current->left != NULL) {
+            queue[rear++] = current->left;
+        }
+        if (current->right != NULL) {
+            queue[rear++] = current->right;
+        }
+    }
+}
+
+// Find path from root to minimum node (closest treasure)
+void findPathToMin(struct Node* root) {
+    while (root != NULL && root->left != NULL) {
+        printf("%s\n", root->name);
+        root = root->left;
+    }
+}
+
+int main() {
+    int n = 7;
+    float player_lat = 25.29, player_lon = 121.67;
+
+    struct Node* root = NULL;
+    float distances[7] = { 3.209, 2.721, 1.778, 3.370, 2.085, 3.481, 2.295 };
+    char names[7][20] = { "Library", "StudentCenter", "ScienceBuilding", "Cafeteria", "Gym", "Stadium", "Auditorium" };
+    float latitudes[7] = { 25.123, 25.234, 25.345, 25.210, 25.280, 25.200, 25.260 };
+    float longitudes[7] = { 121.456, 121.567, 121.678, 121.430, 121.570, 121.480, 121.550 };
+
+    for (int i = 0; i < n; ++i) {
+        float distance = distances[i];
+        root = insert(root, distance, names[i]);
+    }
+
+    printf("DFS:\n");
+    DFS(root);
+
+    printf("BFS:\n");
+    BFS(root);
+
+    printf("Path from Root to Minimum Node:\n");
+    findPathToMin(root);
+
+    // Finding the nearest treasure
+    float minDistance = root->distance;
+    struct Node* minNode = root;
+    while (minNode->left != NULL) {
+        minNode = minNode->left;
+        minDistance = minNode->distance;
+    }
+
+    printf("Nearest Treasure Found: %s (Distance: %.1f)\n", minNode->name, minDistance);
+
+    return 0;
+}
